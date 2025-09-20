@@ -4,6 +4,7 @@ import { UserProfileIcon } from './icons/UserProfileIcon';
 import { Page } from '../types';
 import { LogoIcon } from './icons/LogoIcon';
 import { NotificationIcon } from './icons/NotificationIcon';
+import { HomeIcon } from './icons/HomeIcon';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -25,6 +26,13 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, navigate }) => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
+             <button 
+                onClick={() => navigate('dashboard')}
+                className="p-2 rounded-full text-brand-gray-300 hover:bg-brand-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-gray-800 focus:ring-brand-blue" 
+                aria-label="Go to Dashboard"
+              >
+                <HomeIcon />
+              </button>
              <button 
                 onClick={() => navigate('alerts')}
                 className="p-2 rounded-full text-brand-gray-300 hover:bg-brand-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-gray-800 focus:ring-brand-blue" 

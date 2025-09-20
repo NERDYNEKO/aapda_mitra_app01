@@ -10,12 +10,12 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
   return (
-    <div className="flex flex-col items-center justify-center space-y-6 text-center">
+    <div className="flex flex-col items-center justify-center space-y-8 text-center">
         <h2 className="text-3xl font-bold text-brand-gray-200 mt-4">
             Welcome to <span className="text-brand-blue">Aapda Mitra</span>
         </h2>
       
-      <div className="w-full max-w-md p-4">
+      <div className="w-full max-w-md">
         <SosButton />
       </div>
 

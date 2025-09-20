@@ -11,13 +11,15 @@ const Chatbot: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(scrollToBottom, [messages]);
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      // Directly set the scrollTop to scroll to the bottom of the container.
+      // This is more reliable than scrollIntoView for chat applications.
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]); // Trigger scroll on new messages or when loading indicator changes.
 
   const handleSend = async () => {
     if (input.trim() === '' || isLoading) return;
@@ -53,7 +55,7 @@ const Chatbot: React.FC = () => {
         <SparklesIcon />
         <h3 className="text-lg font-bold text-brand-blue">Aapda Mitra AI</h3>
       </div>
-      <div className="flex-1 p-4 overflow-y-auto space-y-4">
+      <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto space-y-4 custom-scrollbar">
         {messages.map((msg, index) => (
           <div key={index} className={`flex items-start gap-3 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
             {msg.sender === 'bot' && (
@@ -85,7 +87,6 @@ const Chatbot: React.FC = () => {
                 </div>
             </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
       <div className="p-4 border-t border-brand-gray-700 bg-brand-gray-800 rounded-b-2xl">
         <div className="relative">

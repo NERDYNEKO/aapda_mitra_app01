@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { PersonalContact } from '../types';
@@ -6,6 +5,7 @@ import { PhoneIcon } from './icons/PhoneIcon';
 import { TrashIcon } from './icons/TrashIcon';
 import { PlusIcon } from './icons/PlusIcon';
 import { UserIcon } from './icons/UserIcon';
+import { StarIcon } from './icons/StarIcon';
 
 const nationalHelplines = [
   { name: 'National Emergency Number', number: '112' },
@@ -15,6 +15,8 @@ const nationalHelplines = [
   { name: 'Disaster Management Services', number: '108' },
   { name: 'Women Helpline', number: '1091' },
   { name: 'Child Helpline', number: '1098' },
+  { name: 'Aapda Mitra Helpline 1', number: '9406574769' },
+  { name: 'Aapda Mitra Helpline 2', number: '8103446732' },
 ];
 
 type Notification = {
@@ -29,6 +31,8 @@ const EmergencyContacts: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
 
+  const sosContacts = personalContacts.filter(c => c.isSosContact);
+
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
     setTimeout(() => {
@@ -36,16 +40,17 @@ const EmergencyContacts: React.FC = () => {
     }, 3000);
   };
 
+  const fetchContacts = async () => {
+    try {
+      const contacts = await db.personalContacts.toArray();
+      setPersonalContacts(contacts);
+    } catch (error) {
+      console.error("Failed to fetch contacts:", error);
+      showNotification('error', 'Could not load personal contacts.');
+    }
+  };
+
   useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const contacts = await db.personalContacts.toArray();
-        setPersonalContacts(contacts);
-      } catch (error) {
-        console.error("Failed to fetch contacts:", error);
-        showNotification('error', 'Could not load personal contacts.');
-      }
-    };
     fetchContacts();
   }, []);
 
@@ -53,7 +58,7 @@ const EmergencyContacts: React.FC = () => {
     e.preventDefault();
     if (newContactName.trim() && newContactNumber.trim()) {
       try {
-        const newContact: PersonalContact = { name: newContactName.trim(), number: newContactNumber.trim() };
+        const newContact: PersonalContact = { name: newContactName.trim(), number: newContactNumber.trim(), isSosContact: false };
         const id = await db.personalContacts.put(newContact);
         setPersonalContacts([...personalContacts, { ...newContact, id }]);
         setNewContactName('');
@@ -70,10 +75,29 @@ const EmergencyContacts: React.FC = () => {
   const handleDeleteContact = async (id: number) => {
     try {
       await db.personalContacts.delete(id);
-      setPersonalContacts(personalContacts.filter(c => c.id !== id));
+      fetchContacts();
     } catch (error) {
       console.error("Failed to delete contact:", error);
       showNotification('error', 'Failed to delete contact.');
+    }
+  };
+
+  const handleToggleSos = async (contact: PersonalContact) => {
+    if (!contact.id) return;
+
+    const isCurrentlySos = !!contact.isSosContact;
+    if (!isCurrentlySos && sosContacts.length >= 4) {
+      showNotification('error', 'You can only add up to 4 SOS contacts.');
+      return;
+    }
+
+    try {
+      await db.personalContacts.update(contact.id, { isSosContact: !isCurrentlySos });
+      fetchContacts(); // Refetch to update the UI state
+      showNotification('success', `Contact ${!isCurrentlySos ? 'added to' : 'removed from'} SOS list.`);
+    } catch (error) {
+      console.error("Failed to update SOS status:", error);
+      showNotification('error', 'Could not update contact.');
     }
   };
 
@@ -89,6 +113,31 @@ const EmergencyContacts: React.FC = () => {
         Emergency Contacts
       </h2>
       
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold text-brand-blue mb-4">SOS Contacts (Max 4)</h3>
+        <p className="text-brand-gray-400 text-sm mb-4">
+          These contacts will receive an emergency message with your location when you press the SOS button.
+        </p>
+        {sosContacts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {sosContacts.map(contact => (
+              <div key={`sos-${contact.id}`} className="bg-brand-gray-900/50 p-3 rounded-lg border border-brand-gray-700 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <StarIcon filled className="text-yellow-400 h-5 w-5" />
+                  <div>
+                    <p className="font-medium text-brand-gray-200">{contact.name}</p>
+                    <a href={`tel:${contact.number}`} className="text-brand-gray-400 hover:underline text-sm">{contact.number}</a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-brand-gray-500 bg-brand-gray-900/40 p-3 rounded-lg text-center">No SOS contacts selected. Add them from your personal contacts list below.</p>
+        )}
+      </div>
+      <div className="border-t border-brand-gray-700 my-6"></div>
+
       <div className="mb-8">
         <h3 className="text-xl font-semibold text-brand-blue mb-4">National Helplines</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -146,9 +195,19 @@ const EmergencyContacts: React.FC = () => {
                             <a href={`tel:${contact.number}`} className="text-brand-gray-400 hover:underline">{contact.number}</a>
                         </div>
                     </div>
-                    <button onClick={() => contact.id && handleDeleteContact(contact.id)} className="p-2 text-brand-gray-400 hover:text-brand-red hover:bg-brand-red/10 rounded-full" aria-label={`Delete ${contact.name}`}>
-                        <TrashIcon />
-                    </button>
+                    <div className="flex items-center">
+                      <button 
+                        onClick={() => handleToggleSos(contact)}
+                        disabled={!contact.isSosContact && sosContacts.length >= 4}
+                        className="p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed text-yellow-500 hover:bg-yellow-400/10 transition-colors"
+                        aria-label={contact.isSosContact ? `Remove ${contact.name} from SOS contacts` : `Add ${contact.name} to SOS contacts`}
+                      >
+                        <StarIcon filled={!!contact.isSosContact} />
+                      </button>
+                      <button onClick={() => contact.id && handleDeleteContact(contact.id)} className="p-2 text-brand-gray-400 hover:text-brand-red hover:bg-brand-red/10 rounded-full" aria-label={`Delete ${contact.name}`}>
+                          <TrashIcon />
+                      </button>
+                    </div>
                 </div>
             )) : (
                 !isAdding && <p className="text-brand-gray-400 text-center py-4">You haven't added any personal contacts yet.</p>

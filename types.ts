@@ -1,6 +1,5 @@
 export type Page = 
   | 'dashboard'
-  | 'guide'
   | 'alerts'
   | 'shelters'
   | 'volunteer'
@@ -19,15 +18,6 @@ export interface Alert {
   image?: string;
 }
 
-export enum DisasterType {
-  Earthquake = 'Earthquake',
-  Flood = 'Flood',
-  Cyclone = 'Cyclone',
-  Landslide = 'Landslide',
-  Heatwave = 'Heatwave',
-  Tsunami = 'Tsunami',
-}
-
 export interface ChatMessage {
   sender: 'user' | 'bot';
   text: string;
@@ -37,6 +27,7 @@ export interface PersonalContact {
   id?: number;
   name: string;
   number: string;
+  isSosContact?: boolean;
 }
 
 export interface UserProfile {
@@ -45,4 +36,14 @@ export interface UserProfile {
   phone: string;
   age: number;
   gender: 'Male' | 'Female' | 'Other' | 'Prefer not to say';
+}
+
+// FIX: Add DisasterType enum for use in the SurvivalGuide component.
+export enum DisasterType {
+  Flood = 'Flood',
+  Earthquake = 'Earthquake',
+  Cyclone = 'Cyclone',
+  Wildfire = 'Wildfire',
+  Landslide = 'Landslide',
+  Tsunami = 'Tsunami',
 }

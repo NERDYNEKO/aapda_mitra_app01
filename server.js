@@ -32,18 +32,18 @@ app.use(express.json());
 
 // Auth
 app.post('/api/auth/signup', (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, phone, password } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ success: false, message: 'Please provide name, email, and password.' });
+  if (!name || !phone || !password) {
+    return res.status(400).json({ success: false, message: 'Please provide name, mobile number, and password.' });
   }
 
-  const existingUser = users.find(user => user.email === email);
+  const existingUser = users.find(user => user.phone === phone);
   if (existingUser) {
-    return res.status(409).json({ success: false, message: 'User with this email already exists.' });
+    return res.status(409).json({ success: false, message: 'User with this mobile number already exists.' });
   }
 
-  const newUser = { id: nextUserId++, name, email, password };
+  const newUser = { id: nextUserId++, name, phone, password };
   users.push(newUser);
   console.log('Users:', users); // For debugging
   res.status(201).json({ success: true, message: 'Signed up successfully.' });
@@ -51,15 +51,15 @@ app.post('/api/auth/signup', (req, res) => {
 
 
 app.post('/api/auth/signin', (req, res) => {
-  const { email, password } = req.body;
+  const { phone, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'Please provide email and password.' });
+  if (!phone || !password) {
+    return res.status(400).json({ success: false, message: 'Please provide mobile number and password.' });
   }
 
-  const user = users.find(u => u.email === email);
+  const user = users.find(u => u.phone === phone);
   if (!user || user.password !== password) {
-    return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+    return res.status(401).json({ success: false, message: 'Invalid mobile number or password.' });
   }
   
   res.json({ success: true, message: 'Signed in successfully.' });

@@ -8,7 +8,6 @@ import Auth from './components/Auth';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
-import SurvivalGuide from './components/SurvivalGuide';
 import Alerts from './components/Alerts';
 import Shelters from './components/Shelters';
 import VolunteerPortal from './components/VolunteerPortal';
@@ -69,7 +68,6 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard': return <Dashboard navigate={navigate} />;
-      case 'guide': return <SurvivalGuide />;
       case 'alerts': return <Alerts alerts={alerts} />;
       case 'shelters': return <Shelters />;
       case 'volunteer': return <VolunteerPortal />;

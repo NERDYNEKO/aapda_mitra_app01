@@ -10,7 +10,7 @@ interface AuthProps {
 const Auth: React.FC<AuthProps> = ({ onLogin }) => {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,7 +20,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
     setAuthMode(mode);
     setError('');
     setName('');
-    setEmail('');
+    setPhone('');
     setPassword('');
   };
 
@@ -32,7 +32,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         const response = await fetch('/api/auth/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password })
+            body: JSON.stringify({ name, phone, password })
         });
         const data = await response.json();
         if (!response.ok) {
@@ -54,7 +54,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
           const response = await fetch('/api/auth/signin', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, password })
+              body: JSON.stringify({ phone, password })
           });
           const data = await response.json();
           if (!response.ok) {
@@ -76,14 +76,14 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
   const renderSignIn = () => (
     <form onSubmit={handleSignIn} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-brand-gray-300">Email</label>
+        <label className="block text-sm font-medium text-brand-gray-300">Mobile Number</label>
         <input 
-            type="email" 
-            placeholder="you@example.com" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="tel" 
+            placeholder="Enter your mobile number" 
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             required
-            autoComplete="email"
+            autoComplete="tel"
             className="w-full mt-1 p-3 bg-brand-gray-700 border border-brand-gray-600 rounded-md text-brand-gray-100 focus:ring-2 focus:ring-brand-blue" />
       </div>
       <div>
@@ -121,14 +121,14 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
             className="w-full mt-1 p-3 bg-brand-gray-700 border border-brand-gray-600 rounded-md text-brand-gray-100 focus:ring-2 focus:ring-brand-blue" />
       </div>
       <div>
-        <label className="block text-sm font-medium text-brand-gray-300">Email</label>
+        <label className="block text-sm font-medium text-brand-gray-300">Mobile Number</label>
         <input 
-            type="email" 
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="tel" 
+            placeholder="Enter your mobile number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             required
-            autoComplete="email"
+            autoComplete="tel"
             className="w-full mt-1 p-3 bg-brand-gray-700 border border-brand-gray-600 rounded-md text-brand-gray-100 focus:ring-2 focus:ring-brand-blue" />
       </div>
       <div>
